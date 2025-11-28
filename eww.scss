@@ -1,0 +1,22 @@
+* {
+  all: unset;
+  font-family: "Cousine NerdFont";
+  background: rgb(0 0 0 / 5%);
+  border-radius: 5px;
+}
+
+.widget-box {
+  border-top: 1px solid #FFFFFF;
+}
+
+calendar {
+  &:selected {
+    color: rgb(220 138 221);
+    background-color: rgb(10 10 10 / 50%);
+    border-radius: 5px;
+  }
+}
+
+.debug {
+  border: 1px solid #FFFFFF;
+}

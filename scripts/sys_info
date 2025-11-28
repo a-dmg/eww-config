@@ -1,0 +1,25 @@
+#!/bin/bash
+
+get_cpu_name() {
+	name=$(cat /proc/cpuinfo | sed -nE 's/model name.+: (.*)[w\/]*.*/\1/p' | head -1)
+	echo $name
+}
+
+get_local_date() {
+	date=$(LC_TIME=de_CH.UTF-8 date +"%A %d %B %Y")
+	echo $date
+}
+
+get_iface_name() {
+	iface=$(ls -1 /sys/class/net/ | jq -csrRM 'split("\n") | .[:-1]')
+	echo $iface
+}
+
+## Execute accordingly
+if [[ "$1" == "--cpu-name" ]]; then
+	get_cpu_name
+elif [[ "$1" == "--lc-date" ]]; then
+	get_local_date
+elif [[ "$1" == "--iface-name" ]]; then
+	get_iface_name
+fi

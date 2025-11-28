@@ -1,0 +1,154 @@
+;; **
+;; ** Widgets config for EWW
+;; **
+
+;; ** Variables ***********************************************************************
+
+(defpoll CPU_NAME  :interval "120s" `./scripts/sys_info --cpu-name`)
+(defpoll DATE      :interval "60s"  `./scripts/sys_info --lc-date`)
+(defpoll USER      :interval "120s" `whoami`)
+(defpoll IFACE     :interval "60s" :initial "[\"lo\"]" `./scripts/sys_info --iface-name`)
+(defvar  IFACE_IDX 0)
+
+;; ** Widgets *************************************************************************
+
+(defwidget kalendar []
+	(box :class "widget-box"
+		(calendar)))
+
+(defwidget net-usage []
+	(box :class "widget-box" :orientation "v" :space-evenly false
+		(box :class ""
+			(eventbox
+				:onclick "eww update IFACE_IDX=${IFACE_IDX + 1 == arraylength(IFACE) ? 0 : IFACE_IDX + 1}"
+				:onrightclick "eww update IFACE_IDX=${IFACE_IDX == 0 ? arraylength(IFACE)-1 : IFACE_IDX - 1}"
+				(label :class ""
+					:halign "start"
+					:text "  ${IFACE[IFACE_IDX]}"))
+			(label :halign "center"
+				:text "  ${formatbytes(ceil(EWW_NET["${IFACE[IFACE_IDX]}"].NET_UP))}")
+			(label :class ""
+				:halign "end"
+				:text "  ${formatbytes(ceil(EWW_NET["${IFACE[IFACE_IDX]}"].NET_DOWN))}"))
+		(box :orientation "v" :hexpand true :vexpand true 
+			(bargraph
+				:hexpand true :vexpand true 
+				:value {EWW_NET["${IFACE[IFACE_IDX]}"].NET_DOWN}
+				:gradiant-style "dracula"
+				:time-range 150000
+				:radius 2
+				:dynamic true)
+			(bargraph
+				:hexpand true :vexpand true 
+				:value {EWW_NET["${IFACE[IFACE_IDX]}"].NET_UP}
+				:flip-y false
+				:gradiant-style "dracula"
+				:time-range 150000
+				:radius 2
+				:dynamic true))
+))
+
+(defwidget mem-usage []
+	(box :class "widget-box" :orientation "v" :space-evenly false
+		(box
+			(label :halign "start"
+				:text "  RAM ${round(EWW_RAM.used_mem_perc, 0)}%")
+			(label :halign "center"
+				:text "used ${formatbytes(ceil(EWW_RAM.used_mem))}")
+			(label :halign "end"
+				:text "avail. ${formatbytes(EWW_RAM.total_mem)}"))
+		(bargraph :class ""
+			:hexpand true :vexpand true 
+			:value {EWW_RAM.used_mem_perc}
+			:gradiant-style "wiretap"
+			:max 100.0
+			:min 0.0
+			:time-range 150000
+			:radius 2
+			:dynamic false)
+))
+
+(defwidget cpu-usage []
+	(box :class "widget-box" :orientation "v" :space-evenly false
+		(box :class ""
+			(label :halign "start"
+				:limit-width 25
+				:text "  ${CPU_NAME}")
+			(label :halign "end"
+				:text "${round(EWW_CPU.avg, 2)} ${round((EWW_CPU.freq_avg/1000), 2)}Ghz"))
+		(bargraph
+			:hexpand true :vexpand true 
+			:gradiant-style "fire"
+			:value {EWW_CPU.avg}
+			:min 0.0
+			:max 100.0
+			:time-range 150000
+			:radius 2
+			:dynamic false)
+))
+
+(defwidget sys-info []
+	(box :class "" :orientation "h"
+		(label :halign "start"
+			:text "${DATE}")
+		(label :halign "end"
+			:text "${USER}@${EWW_HOSTNAME}")
+))
+
+;; ** Windows *************************************************************************
+
+(defwindow sys-info
+	:monitor 0
+	:geometry
+		(geometry :x "10px"
+			:y "80px"
+			:width "480px"
+			:height "20px"
+			:anchor "top left")
+	:stacking "bg"
+	:wm-ignore false
+(sys-info))
+
+(defwindow cpu-usage
+           :monitor 0
+           :geometry (geometry :x "10px"
+                               :y "100px"
+                               :width "480px"
+                               :height "175px"
+                               :anchor "top left")
+           :stacking "bg"
+           :wm-ignore false
+(cpu-usage))
+
+(defwindow mem-usage
+           :monitor 0
+           :geometry (geometry :x "10px"
+                               :y "275px"
+                               :width "480px"
+                               :height "175"
+                               :anchor "top left")
+           :stacking "bg"
+           :wm-ignore false
+(mem-usage))
+
+(defwindow net-usage
+           :monitor 0
+           :geometry (geometry :x "10px"
+                               :y "450px"
+                               :width "480px"
+                               :height "175"
+                               :anchor "top left")
+           :stacking "bg"
+           :wm-ignore false
+(net-usage))
+
+(defwindow kalendar
+           :monitor 0
+           :geometry (geometry :x "10px"
+                               :y "625px"
+                               :width "480px"
+                               :height "175"
+                               :anchor "top left")
+           :stacking "bg"
+           :wm-ignore false
+(kalendar))
